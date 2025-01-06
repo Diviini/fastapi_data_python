@@ -1,4 +1,3 @@
-import app
 import pandas as pd
 from fastapi import FastAPI
 
@@ -74,6 +73,8 @@ def revenue_by_location(df):
     return df.groupby('location')['purchase_amount_(usd)'].sum().to_dict()
 
 # Load and clean data
+pd.set_option("display.max_columns", None)
+
 data = pd.read_csv('data/shopping_trends.csv')
 data = clean_data(data)
 
@@ -86,7 +87,7 @@ def get_total_revenue():
 
 @app.get("/kpi/total_revenue")
 def get_total_revenue():
-    return {"total_revenue": data['purchase_amount_(usd)'].sum()}
+    return {"total_revenue": total_revenue(data)}
 
 @app.get("/kpi/average_order_value")
 def get_average_order_value():
@@ -116,9 +117,6 @@ def get_subscription_percentage():
 def get_promo_code_usage_rate():
     return {"promo_code_usage_rate": promo_code_usage_rate(data)}
 
-print("test")
-
-
 @app.get("/kpi/frequent_shopper_rate")
 def get_frequent_shopper_rate():
     return {"frequent_shopper_rate": frequent_shopper_rate(data)}
@@ -126,4 +124,3 @@ def get_frequent_shopper_rate():
 @app.get("/kpi/revenue_by_location")
 def get_revenue_by_location():
     return {"revenue_by_location": revenue_by_location(data)}
-
