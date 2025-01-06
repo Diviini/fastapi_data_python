@@ -124,3 +124,52 @@ def get_frequent_shopper_rate():
 @app.get("/kpi/revenue_by_location")
 def get_revenue_by_location():
     return {"revenue_by_location": revenue_by_location(data)}
+
+import matplotlib.pyplot as plt
+
+# Revenu par catégorie
+def plot_revenue_by_category(df):
+    revenue = revenue_by_category(df)
+    categories = list(revenue.keys())
+    values = list(revenue.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(categories, values, color='skyblue')
+    plt.title('Revenue by Category')
+    plt.xlabel('Category')
+    plt.ylabel('Revenue (USD)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig('revenue_by_category.png')  # Save the plot as an image
+    plt.show()
+
+# Taux de souscription
+def plot_subscription_percentage(df):
+    percentage = subscription_percentage(df)
+    labels = ['Subscribed', 'Not Subscribed']
+    sizes = [percentage, 100 - percentage]
+    colors = ['lightgreen', 'lightcoral']
+
+    plt.figure(figsize=(8, 8))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors, startangle=140)
+    plt.title('Subscription Percentage')
+    plt.savefig('subscription_percentage.png')  # Save the plot as an image
+    plt.show()
+
+# Taux d'utilisation des codes promo
+def plot_promo_code_usage_rate(df):
+    usage_rate = promo_code_usage_rate(df)
+    labels = ['Promo Code Used', 'No Promo Code Used']
+    sizes = [usage_rate, 100 - usage_rate]
+    colors = ['gold', 'lightgrey']
+
+    plt.figure(figsize=(8, 8))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors, startangle=140)
+    plt.title('Promo Code Usage Rate')
+    plt.savefig('promo_code_usage_rate.png')  # Save the plot as an image
+    plt.show()
+
+# Appel des fonctions pour tester
+plot_revenue_by_category(data)
+plot_subscription_percentage(data)
+plot_promo_code_usage_rate(data)
