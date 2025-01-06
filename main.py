@@ -32,7 +32,6 @@ def total_revenue(df):
     """Calculate total revenue."""
     return df['purchase_amount_(usd)'].sum()
 
-
 def average_order_value(df):
     """Calculate average order value."""
     return df['purchase_amount_(usd)'].mean()
@@ -85,9 +84,11 @@ app = FastAPI()
 def get_total_revenue():
     return {"total_revenue": 1}
 
-@app.get("/kpi/total_revenue")
+@app.get("/kpi/total_revenu")
 def get_total_revenue():
-    return {"total_revenue": total_revenue(data)}
+    sum = total_revenue(data)
+    strSum = str(sum)
+    return {"total": strSum}
 
 @app.get("/kpi/average_order_value")
 def get_average_order_value():
