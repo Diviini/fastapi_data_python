@@ -1,7 +1,6 @@
 import app
 import pandas as pd
 from fastapi import FastAPI
-from pydantic import BaseModel
 
 def clean_data(df):
     """
