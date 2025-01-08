@@ -150,3 +150,5 @@ def get_frequent_shopper_rate():
 @app.get("/kpi/best_selling_item_by_category")
 def get_best_selling_item_by_category():
     return {"best_selling_item_by_category": best_selling_item_by_category(data)}
+
+
