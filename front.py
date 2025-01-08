@@ -17,7 +17,6 @@ def fetch_data(endpoint):
         st.error(f"Erreur lors de la récupération des données : {response.status_code}")
         return None
 
-
 # KPIs principaux
 st.subheader("Indicateurs Clés de Performance (KPI)")
 
@@ -33,14 +32,20 @@ revenue_by_category = fetch_data("/kpi/revenue_by_category")["revenue_by_categor
 revenue_by_season = fetch_data("/kpi/revenue_by_season")["revenue_by_season"]
 best_selling_item_by_category = fetch_data("/kpi/best_selling_item_by_category")["best_selling_item_by_category"]
 
-# Affichage des KPIs sous forme de métriques
-st.metric("Revenu Total (USD)", f"${float(total_revenue):,.2f}")
-st.metric("Valeur Moyenne par Commande (USD)", f"${average_order_value:,.2f}")
-st.metric("Article le Plus Acheté", most_purchased_item)
-st.metric("Note Moyenne des Avis", f"{average_review_rating:.2f}")
-st.metric("Pourcentage d'Abonnés", f"{subscription_percentage:.2f}%")
-st.metric("Taux d'Utilisation des Codes Promo", f"{promo_code_usage_rate:.2f}%")
-st.metric("Taux de Clients Fréquents", f"{frequent_shopper_rate:.2f}%")
+# Affichage des KPIs sous forme de colonnes
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Revenu Total (USD)", f"${float(total_revenue):,.2f}")
+    st.metric("Article le Plus Acheté", most_purchased_item)
+    st.metric("Taux de Clients Fréquents", f"{frequent_shopper_rate:.2f}%")
+
+with col2:
+    st.metric("Valeur Moyenne par Commande (USD)", f"${average_order_value:,.2f}")
+    st.metric("Note Moyenne des Avis", f"{average_review_rating:.2f}")
+
+with col3:
+    st.metric("Pourcentage d'Abonnés", f"{subscription_percentage:.2f}%")
+    st.metric("Taux d'Utilisation des Codes Promo", f"{promo_code_usage_rate:.2f}%")
 
 # Graphiques
 st.subheader("Graphiques")
