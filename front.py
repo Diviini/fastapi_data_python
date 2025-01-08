@@ -7,6 +7,7 @@ API_URL = "http://127.0.0.1:8000"
 
 # Titre de la page
 st.title("Dashboard des Tendances d'Achat")
+st.write("Ce tableau de bord présente les indicateurs clés de performance (KPI) et les graphiques analytiques pour mieux comprendre les tendances d'achat.")
 
 # Récupération des données depuis l'API
 def fetch_data(endpoint):
@@ -19,6 +20,7 @@ def fetch_data(endpoint):
 
 # KPIs principaux
 st.subheader("Indicateurs Clés de Performance (KPI)")
+st.write("Les KPIs suivants fournissent un aperçu rapide des performances globales des ventes et du comportement des clients.")
 
 # Récupération des données pour chaque KPI
 total_revenue = fetch_data("/kpi/total_revenue")["total"]
@@ -49,6 +51,7 @@ with col3:
 
 # Graphiques
 st.subheader("Graphiques")
+st.write("Les graphiques suivants montrent la répartition des revenus, les comportements des clients et les articles les plus vendus.")
 
 # 1. Revenu par catégorie avec Plotly
 categories = list(revenue_by_category.keys())
@@ -107,6 +110,7 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # 4. Taux d'abonnés avec Plotly
+st.write("Ce graphique montre la proportion des utilisateurs abonnés par rapport aux non-abonnés.")
 labels = ["Abonnés", "Non Abonnés"]
 values = [subscription_percentage, 100 - subscription_percentage]
 
@@ -122,6 +126,7 @@ fig.update_layout(title="Taux d'Abonnés")
 st.plotly_chart(fig)
 
 # 5. Taux d'utilisation des codes promo avec Plotly
+st.write("Ce graphique illustre le taux d'utilisation des codes promotionnels lors des achats.")
 labels = ["Utilisation Codes Promo", "Non Utilisé"]
 values = [promo_code_usage_rate, 100 - promo_code_usage_rate]
 
@@ -137,6 +142,7 @@ fig.update_layout(title="Taux d'Utilisation des Codes Promo")
 st.plotly_chart(fig)
 
 # 6. Taux de clients fréquents avec Plotly
+st.write("Ce graphique montre la proportion des clients fréquents par rapport aux autres clients.")
 labels = ["Clients Fréquents", "Autres Clients"]
 values = [frequent_shopper_rate, 100 - frequent_shopper_rate]
 
