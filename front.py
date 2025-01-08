@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import requests
 import streamlit as st
 
@@ -45,54 +45,103 @@ st.metric("Taux de Clients Fréquents", f"{frequent_shopper_rate:.2f}%")
 # Graphiques
 st.subheader("Graphiques")
 
-# 1. Revenu par catégorie
-fig, ax = plt.subplots()
+# 1. Revenu par catégorie avec Plotly
 categories = list(revenue_by_category.keys())
 revenues = list(revenue_by_category.values())
-ax.barh(categories, revenues, color="skyblue")
-ax.set_title("Revenu par Catégorie")
-ax.set_xlabel("Revenu (USD)")
-st.pyplot(fig)
 
-# 2. Revenu par saison
-fig, ax = plt.subplots()
+fig = go.Figure(go.Bar(
+    x=revenues,
+    y=categories,
+    orientation='h',
+    marker=dict(color='skyblue')
+))
+
+fig.update_layout(
+    title="Revenu par Catégorie",
+    xaxis_title="Revenu (USD)",
+    yaxis_title="Catégories",
+)
+
+st.plotly_chart(fig)
+
+# 2. Revenu par saison avec Plotly
 seasons = list(revenue_by_season.keys())
 season_revenues = list(revenue_by_season.values())
-ax.bar(seasons, season_revenues, color="lightgreen")
-ax.set_title("Revenu par Saison")
-ax.set_ylabel("Revenu (USD)")
-st.pyplot(fig)
 
-# 3. Meilleur article vendu par catégorie
-# Meilleur article vendu par catégorie
-best_selling_item_by_category = fetch_data("/kpi/best_selling_item_by_category")["best_selling_item_by_category"]
+fig = go.Figure(go.Bar(
+    x=seasons,
+    y=season_revenues,
+    marker=dict(color='lightgreen')
+))
 
-categories = list(best_selling_item_by_category.keys())
-# Récupère le nom de l'article le plus vendu (le deuxième élément dans chaque liste)
+fig.update_layout(
+    title="Revenu par Saison",
+    xaxis_title="Saison",
+    yaxis_title="Revenu (USD)",
+)
+
+st.plotly_chart(fig)
+
+# 3. Meilleur article vendu par catégorie avec Plotly
+categories_best_selling = list(best_selling_item_by_category.keys())
 best_selling_items = [item[1] for item in best_selling_item_by_category.values()]
 
-fig, ax = plt.subplots()
-ax.barh(categories, best_selling_items, color="coral")
-ax.set_title("Meilleur Article Vendu par Catégorie")
-ax.set_xlabel("Articles")
-st.pyplot(fig)
+fig = go.Figure(go.Bar(
+    x=best_selling_items,
+    y=categories_best_selling,
+    orientation='h',
+    marker=dict(color='coral')
+))
 
+fig.update_layout(
+    title="Meilleur Article Vendu par Catégorie",
+    xaxis_title="Articles",
+    yaxis_title="Catégories",
+)
 
+st.plotly_chart(fig)
 
-# 4. Taux d'abonnés
-fig, ax = plt.subplots()
-ax.pie([subscription_percentage, 100 - subscription_percentage], labels=["Abonnés", "Non Abonnés"], autopct="%1.1f%%", colors=["#ff9999", "#66b3ff"])
-ax.set_title("Taux d'Abonnés")
-st.pyplot(fig)
+# 4. Taux d'abonnés avec Plotly
+labels = ["Abonnés", "Non Abonnés"]
+values = [subscription_percentage, 100 - subscription_percentage]
 
-# 5. Taux d'utilisation des codes promo
-fig, ax = plt.subplots()
-ax.pie([promo_code_usage_rate, 100 - promo_code_usage_rate], labels=["Utilisation Codes Promo", "Non Utilisé"], autopct="%1.1f%%", colors=["#ffcc99", "#99ff99"])
-ax.set_title("Taux d'Utilisation des Codes Promo")
-st.pyplot(fig)
+fig = go.Figure(go.Pie(
+    labels=labels,
+    values=values,
+    marker=dict(colors=["#ff9999", "#66b3ff"]),
+    hole=0.3
+))
 
-# 6. Taux de clients fréquents
-fig, ax = plt.subplots()
-ax.pie([frequent_shopper_rate, 100 - frequent_shopper_rate], labels=["Clients Fréquents", "Autres Clients"], autopct="%1.1f%%", colors=["#c2c2f0", "#ffb3e6"])
-ax.set_title("Taux de Clients Fréquents")
-st.pyplot(fig)
+fig.update_layout(title="Taux d'Abonnés")
+
+st.plotly_chart(fig)
+
+# 5. Taux d'utilisation des codes promo avec Plotly
+labels = ["Utilisation Codes Promo", "Non Utilisé"]
+values = [promo_code_usage_rate, 100 - promo_code_usage_rate]
+
+fig = go.Figure(go.Pie(
+    labels=labels,
+    values=values,
+    marker=dict(colors=["#ffcc99", "#99ff99"]),
+    hole=0.3
+))
+
+fig.update_layout(title="Taux d'Utilisation des Codes Promo")
+
+st.plotly_chart(fig)
+
+# 6. Taux de clients fréquents avec Plotly
+labels = ["Clients Fréquents", "Autres Clients"]
+values = [frequent_shopper_rate, 100 - frequent_shopper_rate]
+
+fig = go.Figure(go.Pie(
+    labels=labels,
+    values=values,
+    marker=dict(colors=["#c2c2f0", "#ffb3e6"]),
+    hole=0.3
+))
+
+fig.update_layout(title="Taux de Clients Fréquents")
+
+st.plotly_chart(fig)
