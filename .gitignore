@@ -3,3 +3,5 @@
 .idea/projetpython.iml
 /.idea
 /.idea
+/__pycache__
+*.pyc

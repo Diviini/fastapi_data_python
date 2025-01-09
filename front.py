@@ -1,11 +1,13 @@
 import plotly.graph_objects as go
 import requests
 import streamlit as st
+import pandas as pd
 
 # Configuration de l'URL de l'API
 API_URL = "http://127.0.0.1:8000"
 
-# Titre de la page
+# Titre de la page / Config
+st.set_page_config(page_title="Customer Shopping Trends Dashboard", layout="wide")
 st.title("Dashboard des Tendances d'Achat")
 st.write("Ce tableau de bord présente les indicateurs clés de performance (KPI) et les graphiques analytiques pour mieux comprendre les tendances d'achat.")
 
@@ -23,7 +25,6 @@ st.subheader("Indicateurs Clés de Performance (KPI)")
 st.write("Les KPIs suivants fournissent un aperçu rapide des performances globales des ventes et du comportement des clients.")
 
 # Récupération des données pour chaque KPI
-# total_revenue = fetch_data("/kpi/total_revenue")["total"]
 average_order_value = fetch_data("/kpi/average_order_value")["average_order_value"]
 most_purchased_item = fetch_data("/kpi/most_purchased_item")["most_purchased_item"]
 average_review_rating = fetch_data("/kpi/average_review_rating")["average_review_rating"]
@@ -36,11 +37,9 @@ best_selling_item_by_category = fetch_data("/kpi/best_selling_item_by_category")
 revenue_by_location = fetch_data("/kpi/revenue_by_location")["revenue_by_location"]
 custumer_age_rate = fetch_data("/kpi/custumer_age_rate")["custumer_age_rate"]
 
-
 # Affichage des KPIs sous forme de colonnes
 col1, col2, col3 = st.columns(3)
 with col1:
-    # st.metric("Revenu Total (USD)", f"${float(total_revenue):,.0f}")
     st.metric("Article le Plus Acheté", most_purchased_item)
     st.metric("Taux de Clients Fréquents", f"{frequent_shopper_rate:.2f}%")
 
@@ -53,29 +52,22 @@ with col3:
     st.metric("Taux d'Utilisation des Codes Promo", f"{promo_code_usage_rate:.0f}%")
 
 # Graphiques
-
-
-# 3. Meilleur article vendu par catégorie sous forme de tableau
-import pandas as pd
-
-# Conversion des données en DataFrame
-data = {
-    "Catégorie": list(best_selling_item_by_category.keys()),
-    "Meilleur Article": [item[1] for item in best_selling_item_by_category.values()]
-}
-df_best_selling = pd.DataFrame(data)
-
-# Affichage du tableau
-st.subheader("Meilleur Article Vendu par Catégorie")
-st.table(df_best_selling)
-
-# Affichage des graphiques
 st.subheader("Graphiques")
 st.write("Les graphiques suivants montrent la répartition des revenus, les comportements des clients et les articles les plus vendus.")
 
+# Ajout de filtres généraux
+st.sidebar.header("Filtres")
+selected_category = st.sidebar.selectbox("Sélectionnez une catégorie", ["Toutes"] + list(revenue_by_category.keys()))
+selected_season = st.sidebar.selectbox("Sélectionnez une saison", ["Toutes"] + list(revenue_by_season.keys()))
+selected_location = st.sidebar.selectbox("Sélectionnez une location", ["Toutes"] + list(revenue_by_location.keys()))
+
 # 1. Revenu par catégorie avec Plotly
-categories = list(revenue_by_category.keys())
-revenues = list(revenue_by_category.values())
+if selected_category == "Toutes":
+    categories = list(revenue_by_category.keys())
+    revenues = list(revenue_by_category.values())
+else:
+    categories = [selected_category]
+    revenues = [revenue_by_category[selected_category]]
 
 fig = go.Figure(go.Bar(
     x=revenues,
@@ -93,8 +85,12 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # 2. Revenu par saison avec Plotly
-seasons = list(revenue_by_season.keys())
-season_revenues = list(revenue_by_season.values())
+if selected_season == "Toutes":
+    seasons = list(revenue_by_season.keys())
+    season_revenues = list(revenue_by_season.values())
+else:
+    seasons = [selected_season]
+    season_revenues = [revenue_by_season[selected_season]]
 
 fig = go.Figure(go.Bar(
     x=seasons,
@@ -109,6 +105,16 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig)
+
+# 3. Meilleur article vendu par catégorie sous forme de tableau
+data = {
+    "Catégorie": list(best_selling_item_by_category.keys()),
+    "Meilleur Article": [item[1] for item in best_selling_item_by_category.values()]
+}
+df_best_selling = pd.DataFrame(data)
+
+st.subheader("Meilleur Article Vendu par Catégorie")
+st.table(df_best_selling)
 
 # 4. Taux d'abonnés avec Plotly
 st.write("Ce graphique montre la proportion des utilisateurs abonnés par rapport aux non-abonnés.")
@@ -158,10 +164,13 @@ fig.update_layout(title="Taux de Clients Fréquents")
 
 st.plotly_chart(fig)
 
-
-# 7 par locations :
-locations = list(revenue_by_location.keys())
-location_revenues = list(revenue_by_location.values())
+# 7. Revenu par location avec Plotly
+if selected_location == "Toutes":
+    locations = list(revenue_by_location.keys())
+    location_revenues = list(revenue_by_location.values())
+else:
+    locations = [selected_location]
+    location_revenues = [revenue_by_location[selected_location]]
 
 fig = go.Figure(go.Bar(
     x=locations,
@@ -170,22 +179,24 @@ fig = go.Figure(go.Bar(
 ))
 
 fig.update_layout(
-    title="Revenu par location",
+    title="Revenu par Location",
     xaxis_title="Location",
     yaxis_title="Revenu (USD)",
 )
 
 st.plotly_chart(fig)
 
-# Client par tranches d'ages
-
+# 8. Client par tranches d'âges
+st.write("Ce graphique montre la répartition des clients par tranche d'âge.")
 labels = list(custumer_age_rate.keys())
 values = list(custumer_age_rate.values())
+
 fig = go.Figure(go.Pie(
     labels=labels,
     values=values,
     hole=0.3
 ))
 
-fig.update_layout(title="Taux de clients par tranche d'âge")
+fig.update_layout(title="Taux de Clients par Tranche d'Âge")
+
 st.plotly_chart(fig)
