@@ -1,6 +1,8 @@
 import plotly.graph_objects as go
 import requests
 import streamlit as st
+import pandas as pd
+
 
 # Configuration de l'URL de l'API
 API_URL = "http://127.0.0.1:8000"
@@ -23,7 +25,7 @@ st.subheader("Indicateurs Clés de Performance (KPI)")
 st.write("Les KPIs suivants fournissent un aperçu rapide des performances globales des ventes et du comportement des clients.")
 
 # Récupération des données pour chaque KPI
-# total_revenue = fetch_data("/kpi/total_revenue")["total"]
+total_revenue = fetch_data("/kpi/total_revenue")["total"]
 average_order_value = fetch_data("/kpi/average_order_value")["average_order_value"]
 most_purchased_item = fetch_data("/kpi/most_purchased_item")["most_purchased_item"]
 average_review_rating = fetch_data("/kpi/average_review_rating")["average_review_rating"]
@@ -40,7 +42,7 @@ custumer_age_rate = fetch_data("/kpi/custumer_age_rate")["custumer_age_rate"]
 # Affichage des KPIs sous forme de colonnes
 col1, col2, col3 = st.columns(3)
 with col1:
-    # st.metric("Revenu Total (USD)", f"${float(total_revenue):,.0f}")
+    st.metric("Revenu Total (USD)", f"${float(total_revenue):,.0f}")
     st.metric("Article le Plus Acheté", most_purchased_item)
     st.metric("Taux de Clients Fréquents", f"{frequent_shopper_rate:.2f}%")
 
@@ -56,7 +58,6 @@ with col3:
 
 
 # 3. Meilleur article vendu par catégorie sous forme de tableau
-import pandas as pd
 
 # Conversion des données en DataFrame
 data = {
@@ -159,23 +160,34 @@ fig.update_layout(title="Taux de Clients Fréquents")
 st.plotly_chart(fig)
 
 
-# 7 par locations :
-locations = list(revenue_by_location.keys())
-location_revenues = list(revenue_by_location.values())
+# Transformation des données
+states = list(revenue_by_location.keys())
+revenues = list(revenue_by_location.values())
 
-fig = go.Figure(go.Bar(
-    x=locations,
-    y=location_revenues,
-    marker=dict(color='lightgreen')
+# Création de la carte choroplèthe
+fig = go.Figure(data=go.Choropleth(
+    locations=states,  # Liste des abréviations des États
+    z=revenues,  # Revenus associés à chaque État
+    locationmode='USA-states',  # Mode des emplacements (codes d'États)
+    colorscale='YlGn',  # Palette de couleurs
+    colorbar_title="Revenus ($)",
 ))
 
 fig.update_layout(
-    title="Revenu par location",
-    xaxis_title="Location",
-    yaxis_title="Revenu (USD)",
+    title_text='Carte des revenus par État',
+    geo=dict(
+        scope='usa',  # Limite à la carte des États-Unis
+        projection=go.layout.geo.Projection(type='albers usa'),
+        showlakes=True,  # Afficher les lacs
+        lakecolor='rgb(15, 17, 22)',  # Couleur des lacs
+        bgcolor='rgb(15, 17, 22)'  # Change the background color here
+    )
 )
 
+# Affichage dans Streamlit
+st.title("Carte des revenus par État")
 st.plotly_chart(fig)
+
 
 # Client par tranches d'ages
 

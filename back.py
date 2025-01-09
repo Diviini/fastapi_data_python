@@ -2,6 +2,61 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 
+# Dictionnaire des noms complets des États vers leurs abréviations
+STATE_ABBREVIATIONS = {
+    "alabama": "AL",
+    "alaska": "AK",
+    "arizona": "AZ",
+    "arkansas": "AR",
+    "california": "CA",
+    "colorado": "CO",
+    "connecticut": "CT",
+    "delaware": "DE",
+    "florida": "FL",
+    "georgia": "GA",
+    "hawaii": "HI",
+    "idaho": "ID",
+    "illinois": "IL",
+    "indiana": "IN",
+    "iowa": "IA",
+    "kansas": "KS",
+    "kentucky": "KY",
+    "louisiana": "LA",
+    "maine": "ME",
+    "maryland": "MD",
+    "massachusetts": "MA",
+    "michigan": "MI",
+    "minnesota": "MN",
+    "mississippi": "MS",
+    "missouri": "MO",
+    "montana": "MT",
+    "nebraska": "NE",
+    "nevada": "NV",
+    "new hampshire": "NH",
+    "new jersey": "NJ",
+    "new mexico": "NM",
+    "new york": "NY",
+    "north carolina": "NC",
+    "north dakota": "ND",
+    "ohio": "OH",
+    "oklahoma": "OK",
+    "oregon": "OR",
+    "pennsylvania": "PA",
+    "rhode island": "RI",
+    "south carolina": "SC",
+    "south dakota": "SD",
+    "tennessee": "TN",
+    "texas": "TX",
+    "utah": "UT",
+    "vermont": "VT",
+    "virginia": "VA",
+    "washington": "WA",
+    "west virginia": "WV",
+    "wisconsin": "WI",
+    "wyoming": "WY",
+}
+
+
 # Initialisation de l'application FastAPI
 app = FastAPI()
 
@@ -57,6 +112,16 @@ def clean_data(df):
     return df
 
 data = clean_data(data)
+
+def transform_region_data(data):
+    """Transforme les noms des régions en abréviations des États."""
+    transformed_data = {}
+    for region, value in data.items():
+        abbreviation = STATE_ABBREVIATIONS.get(region.lower())
+        if abbreviation:
+            transformed_data[abbreviation] = value
+    return transformed_data
+
 
 # Fonctions pour les KPI
 def total_revenue(df):
@@ -134,7 +199,10 @@ def get_total_revenue():
 
 @app.get("/kpi/revenue_by_location")
 def get_revenue_by_location():
-    return {"revenue_by_location": revenue_by_location(data)}
+    revenue_data = revenue_by_location(data)
+    transformed_revenue_data = transform_region_data(revenue_data)
+    return {"revenue_by_location": transformed_revenue_data}
+
 
 @app.get("/kpi/custumer_age_rate")
 def get_custumer_age_rate():
