@@ -20,6 +20,7 @@ data = pd.read_csv("data/shopping_trends.csv")
 # Nettoie les données
 def clean_data(df):
     df.columns = df.columns.str.strip().str.replace(" ", "_").str.lower()
+
     df = df.dropna()
     colonnes_textes = [
         "gender",
@@ -46,8 +47,14 @@ def clean_data(df):
         df = df[(df["age"] > 0) & (df["age"] < 100)]
     if "purchase_amount_(usd)" in df.columns:
         df = df[df["purchase_amount_(usd)"] > 0]
-    return df
 
+    # nouvelle colonne qui contient les tranches d'age et le nombre de client dans chaque tranches
+    bins = [0, 18, 30, 40, 50, 60, 70, 80, 90, 100]
+    labels = ['0-18', '18-30', '30-40', '40-50', '50-60', '60-70', '70-80', '80-90', '90-100']
+    df['age_group'] = pd.cut(df['age'], bins=bins, labels=labels, right=False)
+    df['age_group'] = df['age_group'].astype(str)
+
+    return df
 
 data = clean_data(data)
 
@@ -98,6 +105,24 @@ def best_selling_item_by_category(df):
     """Find the best selling item by category."""
     return df.groupby('category')['item_purchased'].value_counts().groupby('category').idxmax()
 
+def subscriber_frequent_relation(df):
+    """Calculate the relationship between subscribers and frequent shoppers."""
+    abonnés = df[df["subscription_status"] == "yes"]
+    abonnés_fréquents = abonnés[
+        abonnés["frequency_of_purchases"].isin(["weekly", "fortnightly"])
+    ]
+
+    proportion_fréquents_parmi_abonnés = (len(abonnés_fréquents) / len(abonnés)) * 100 if len(abonnés) > 0 else 0
+
+    return {
+        "frequent_shoppers_among_subscribers": proportion_fréquents_parmi_abonnés,
+    }
+
+def custumer_age_rate(df):
+    """Calculate the rate of custumer age."""
+    return df['age_group'].value_counts().to_dict()
+
+
 
 
 # Routes API
@@ -106,6 +131,14 @@ def get_total_revenue():
     sum = total_revenue(data)
     strSum = str(sum)
     return {"total": strSum}
+
+@app.get("/kpi/revenue_by_location")
+def get_revenue_by_location():
+    return {"revenue_by_location": revenue_by_location(data)}
+
+@app.get("/kpi/custumer_age_rate")
+def get_custumer_age_rate():
+    return {"custumer_age_rate": custumer_age_rate(data)}
 
 
 @app.get("/kpi/average_order_value")
@@ -151,4 +184,7 @@ def get_frequent_shopper_rate():
 def get_best_selling_item_by_category():
     return {"best_selling_item_by_category": best_selling_item_by_category(data)}
 
+@app.get("/kpi/subscriber_frequent_relation")
+def get_subscriber_frequent_relation():
+    return subscriber_frequent_relation(data)
 

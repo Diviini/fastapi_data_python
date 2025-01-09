@@ -21,7 +21,7 @@ def fetch_data(endpoint):
 st.subheader("Indicateurs Clés de Performance (KPI)")
 
 # Récupération des données pour chaque KPI
-total_revenue = fetch_data("/kpi/total_revenue")["total"]
+# total_revenue = fetch_data("/kpi/total_revenue")["total"]
 average_order_value = fetch_data("/kpi/average_order_value")["average_order_value"]
 most_purchased_item = fetch_data("/kpi/most_purchased_item")["most_purchased_item"]
 average_review_rating = fetch_data("/kpi/average_review_rating")["average_review_rating"]
@@ -31,11 +31,14 @@ frequent_shopper_rate = fetch_data("/kpi/frequent_shopper_rate")["frequent_shopp
 revenue_by_category = fetch_data("/kpi/revenue_by_category")["revenue_by_category"]
 revenue_by_season = fetch_data("/kpi/revenue_by_season")["revenue_by_season"]
 best_selling_item_by_category = fetch_data("/kpi/best_selling_item_by_category")["best_selling_item_by_category"]
+revenue_by_location = fetch_data("/kpi/revenue_by_location")["revenue_by_location"]
+custumer_age_rate = fetch_data("/kpi/custumer_age_rate")["custumer_age_rate"]
+
 
 # Affichage des KPIs sous forme de colonnes
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Revenu Total (USD)", f"${float(total_revenue):,.2f}")
+    # st.metric("Revenu Total (USD)", f"${float(total_revenue):,.0f}")
     st.metric("Article le Plus Acheté", most_purchased_item)
     st.metric("Taux de Clients Fréquents", f"{frequent_shopper_rate:.2f}%")
 
@@ -44,10 +47,27 @@ with col2:
     st.metric("Note Moyenne des Avis", f"{average_review_rating:.2f}")
 
 with col3:
-    st.metric("Pourcentage d'Abonnés", f"{subscription_percentage:.2f}%")
-    st.metric("Taux d'Utilisation des Codes Promo", f"{promo_code_usage_rate:.2f}%")
+    st.metric("Pourcentage d'Abonnés", f"{subscription_percentage:.0f}%")
+    st.metric("Taux d'Utilisation des Codes Promo", f"{promo_code_usage_rate:.0f}%")
 
 # Graphiques
+
+
+# 3. Meilleur article vendu par catégorie sous forme de tableau
+import pandas as pd
+
+# Conversion des données en DataFrame
+data = {
+    "Catégorie": list(best_selling_item_by_category.keys()),
+    "Meilleur Article": [item[1] for item in best_selling_item_by_category.values()]
+}
+df_best_selling = pd.DataFrame(data)
+
+# Affichage du tableau
+st.subheader("Meilleur Article Vendu par Catégorie")
+st.table(df_best_selling)
+
+# Affichage des graphiques
 st.subheader("Graphiques")
 
 # 1. Revenu par catégorie avec Plotly
@@ -83,25 +103,6 @@ fig.update_layout(
     title="Revenu par Saison",
     xaxis_title="Saison",
     yaxis_title="Revenu (USD)",
-)
-
-st.plotly_chart(fig)
-
-# 3. Meilleur article vendu par catégorie avec Plotly
-categories_best_selling = list(best_selling_item_by_category.keys())
-best_selling_items = [item[1] for item in best_selling_item_by_category.values()]
-
-fig = go.Figure(go.Bar(
-    x=best_selling_items,
-    y=categories_best_selling,
-    orientation='h',
-    marker=dict(color='coral')
-))
-
-fig.update_layout(
-    title="Meilleur Article Vendu par Catégorie",
-    xaxis_title="Articles",
-    yaxis_title="Catégories",
 )
 
 st.plotly_chart(fig)
@@ -149,4 +150,36 @@ fig = go.Figure(go.Pie(
 
 fig.update_layout(title="Taux de Clients Fréquents")
 
+st.plotly_chart(fig)
+
+
+# 7 par locations :
+locations = list(revenue_by_location.keys())
+location_revenues = list(revenue_by_location.values())
+
+fig = go.Figure(go.Bar(
+    x=locations,
+    y=location_revenues,
+    marker=dict(color='lightgreen')
+))
+
+fig.update_layout(
+    title="Revenu par location",
+    xaxis_title="Location",
+    yaxis_title="Revenu (USD)",
+)
+
+st.plotly_chart(fig)
+
+# Client par tranches d'ages
+
+labels = list(custumer_age_rate.keys())
+values = list(custumer_age_rate.values())
+fig = go.Figure(go.Pie(
+    labels=labels,
+    values=values,
+    hole=0.3
+))
+
+fig.update_layout(title="Taux de clients par tranche d'âge")
 st.plotly_chart(fig)
