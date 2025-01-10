@@ -40,7 +40,7 @@ Le tableau de bord Streamlit se connecte à l'API FastAPI pour récupérer les d
 
 1. Clonez ce repository :
    ```bash
-   git clone [https://github.com/Diviini/fastapi_data_python](https://github.com/Diviini/fastapi_data_python)
+   git clone https://github.com/Diviini/fastapi_data_python
    cd fastapi_data_python
    ```
 
